@@ -1,13 +1,17 @@
 package detector;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
+
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
 
 public class Detector {
 	static {
@@ -15,46 +19,59 @@ public class Detector {
 	}
 	ArrayList<File> file;
 
-	public Detector(ArrayList<File> imgs) {
+	public Detector(ArrayList<File> imgs) throws IOException {
 		file = imgs;
 		detectDocs();
 	}
 
-	private void detectDocs() {
+	private void detectDocs() throws IOException {
 
 		for (int i = 0; i < file.size(); i++) {
 			File f = file.get(i);
 			String imgName = f.getName();
-			Mat img = Imgcodecs.imread(imgName + "");
-			System.out.println();
+			BufferedImage imgBuffer = ImageIO.read(f);
+
+			BufferedImage imageCopy = new BufferedImage(imgBuffer.getWidth(), imgBuffer.getHeight(),
+					BufferedImage.TYPE_3BYTE_BGR);
+			imageCopy.getGraphics().drawImage(imgBuffer, 0, 0, null);
+
+			byte[] data = ((DataBufferByte) imageCopy.getRaster().getDataBuffer()).getData();
+			Mat img = new Mat(imgBuffer.getHeight(), imgBuffer.getWidth(), CvType.CV_8UC3);
+			img.put(0, 0, data);
+			Imgcodecs.imwrite("input.jpg", img);
+
 		}
 
 	}
 
-	private File filterImg(File file) {
+
+
+	private Mat filterImg(Mat img) {
+		Mat destination = new Mat(img.rows(), img.cols(), img.type());
+		Mat kernel = new Mat(3, 3, CvType.CV_32F) {
+			{
+				put(0, 0, -1);
+				put(0, 1, 0);
+				put(0, 2, 1);
+
+				put(1, 0 - 2);
+				put(1, 1, 0);
+				put(1, 2, 2);
+
+				put(2, 0, -1);
+				put(2, 1, 0);
+				put(2, 2, 1);
+			}
+		};
 
 		return null;
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		ArrayList<File> list = new ArrayList<>();
 		list.add(new File("./datasets/digits.png"));
 		Detector d = new Detector(list);
 	}
 
-	public BufferedImage imshow(Mat m) {
-		int type = BufferedImage.TYPE_BYTE_GRAY;
-		if (m.channels() > 1) {
-	        Mat m2 = new Mat();
-	        Imgproc.cvtColor(m,m2,Imgproc.COLOR_BGR2RGB);
-	        type = BufferedImage.TYPE_3BYTE_BGR;
-	        m = m2;
-	    }
-	    byte [] b = new byte[m.channels()*m.cols()*m.rows()];
-	    m.get(0,0,b); // get all the pixels
-	    BufferedImage image = new BufferedImage(m.cols(),m.rows(), type);
-	    image.getRaster().setDataElements(0, 0, m.cols(),m.rows(), b);
-	    return image;
-	}
 }
 
