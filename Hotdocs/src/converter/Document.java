@@ -2,7 +2,7 @@ package converter;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.Scanner;
+
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
 public class Document{
@@ -13,9 +13,10 @@ public class Document{
 	private static Document doc = new Document();
 	
 	private Document() {
-		Scanner in = new Scanner(System.in);
-		System.out.println("What do you want to name the word document? Please include the .docx file extension.");
-		this.docName = in.nextLine();
+		// Scanner in = new Scanner(System.in);
+		// System.out.println("What do you want to name the word document? Please
+		// include the .docx file extension.");
+		this.docName = "doc.docx";
 		this.docxFile = new XWPFDocument();
 		
 		try{
@@ -24,7 +25,7 @@ public class Document{
 		catch(Exception e) {
 			System.out.println("Can't create word doc.");
 		}
-		in.close();
+		// in.close();
 	}
 	
 	public static Document getInstance() {

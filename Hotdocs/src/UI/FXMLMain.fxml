@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane id="AnchorPane" prefHeight="900.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="UI.FXMLMainController">
+   <children>
+      <ImageView fx:id="bigP" fitHeight="900.0" fitWidth="900.0" layoutX="-2.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="poster1" fitHeight="235.0" fitWidth="200.0" layoutX="125.0" layoutY="121.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="poster2" fitHeight="235.0" fitWidth="200.0" layoutX="350.0" layoutY="121.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="poster3" fitHeight="235.0" fitWidth="200.0" layoutX="581.0" layoutY="121.0" pickOnBounds="true" preserveRatio="true" />
+      <Label layoutX="268.0" layoutY="416.0" prefHeight="44.0" prefWidth="370.0" text="                  Previous Processed Files" textFill="#eeeded">
+         <font>
+            <Font size="18.0" />
+         </font></Label>
+      <Button fx:id="imageB" layoutX="347.0" layoutY="502.0" mnemonicParsing="false" onAction="#handleImageBAction" prefHeight="31.0" prefWidth="200.0" text="Add new image" textFill="#2f0707" />
+   </children>
+</AnchorPane>
