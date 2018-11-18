@@ -19,7 +19,7 @@ public class Trainer {
 
 	public static void main(String[] args) {
 		// samples/data/digits.png, have a look at it.
-		Mat digits = Imgcodecs.imread("./datasets/digits.png", 0);
+		Mat digits = Imgcodecs.imread("./datasets/digits.png" + "", 0);
 		// setup train/test data:
 		Mat trainData = new Mat(), testData = new Mat();
 		List<Integer> trainLabs = new ArrayList<Integer>(), testLabs = new ArrayList<Integer>();
