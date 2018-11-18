@@ -12,6 +12,7 @@ import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
 public class Detector {
 	static {
@@ -27,17 +28,18 @@ public class Detector {
 	private void detectDocs() throws IOException {
 
 		for (int i = 0; i < file.size(); i++) {
+			// reading image stuff
 			File f = file.get(i);
 			String imgName = f.getName();
 			BufferedImage imgBuffer = ImageIO.read(f);
-
 			BufferedImage imageCopy = new BufferedImage(imgBuffer.getWidth(), imgBuffer.getHeight(),
 					BufferedImage.TYPE_3BYTE_BGR);
 			imageCopy.getGraphics().drawImage(imgBuffer, 0, 0, null);
-
 			byte[] data = ((DataBufferByte) imageCopy.getRaster().getDataBuffer()).getData();
 			Mat img = new Mat(imgBuffer.getHeight(), imgBuffer.getWidth(), CvType.CV_8UC3);
+
 			img.put(0, 0, data);
+			Mat imfg = filterImg(img);
 			Imgcodecs.imwrite("input.jpg", img);
 
 		}
@@ -63,8 +65,8 @@ public class Detector {
 				put(2, 2, 1);
 			}
 		};
-
-		return null;
+		Imgproc.filter2D(img, destination, -1, kernel);
+		return destination;
 	}
 
 	public static void main(String[] args) throws IOException {
