@@ -1,16 +1,17 @@
 package converter;
-import java.io.FileInputStream;
+
 import org.apache.poi.xwpf.usermodel.*;
 
 public class Heading extends Element{
-	public Heading(Document doc, String text) {
-		super(doc,text);
+	public Heading(String text) {
+		super(text);
 	}
 	
 	public void formatAndAppend(String text) {
 		try {
-			XWPFParagraph heading = this.getDoc().getDocxFile().createParagraph();
+			XWPFParagraph heading = Document.getInstance().getDocxFile().createParagraph();
 			heading.setSpacingAfterLines(50);
+			heading.setSpacingBeforeLines(200);
 			
 			XWPFRun headingText = heading.createRun();
 			headingText.setBold(true);

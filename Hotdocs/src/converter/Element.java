@@ -1,39 +1,35 @@
 package converter;
-import org.apache.poi.xwpf.usermodel.*;
-import java.io.File;
-import java.io.FileOutputStream;
+import java.util.ArrayList;
 
 public abstract class Element {
-	private Document doc;
 	private String text;
+	private ArrayList<String> points;
 	
-	public Element(Document doc, String text) {
-		this.doc = doc;
+	public Element(String text) {
 		this.text = text;
 	}
 	
-	
-	public Document getDoc() {
-		return doc;
+	public Element(ArrayList<String> p) {
+		this.points = new ArrayList<String>();
+		points = p;
 	}
-
-
-	public void setDoc(Document doc) {
-		this.doc = doc;
-	}
-
 
 	public String getText() {
 		return text;
 	}
 
-
 	public void setText(String text) {
 		this.text = text;
 	}
 
-
 	public abstract void formatAndAppend(String s);
 	
+	public void formatAndAppend(ArrayList<String> s) {
+		
+	}
+
+	public ArrayList<String> getPoints() {
+		return points;
+	}
 	
 }

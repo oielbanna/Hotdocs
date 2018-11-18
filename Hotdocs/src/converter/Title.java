@@ -1,20 +1,19 @@
 package converter;
-import java.io.FileInputStream;
 
 import org.apache.poi.xwpf.usermodel.*;
 
 public class Title extends Element{
-	public Title(Document doc, String text) {
-		super(doc,text);
+	public Title(String text) {
+		super(text);
 	}
 	
 	public void formatAndAppend(String text) {
 		try {
 			//XWPFDocument doc = new XWPFDocument(new FileInputStream(this.getDoc().getDocName()));
 			
-			XWPFParagraph title = this.getDoc().getDocxFile().createParagraph();
+			XWPFParagraph title = Document.getInstance().getDocxFile().createParagraph();
 			title.setAlignment(ParagraphAlignment.CENTER);
-			title.setSpacingAfterLines(150);
+			title.setSpacingAfterLines(50);
 			
 			XWPFRun titleText = title.createRun();
 			titleText.setBold(true);
