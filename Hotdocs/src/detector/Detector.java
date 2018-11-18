@@ -3,6 +3,7 @@ package detector;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.opencv.core.Core;
@@ -28,6 +29,51 @@ public class Detector {
 		detectDocs();
 	}
 
+	public List<Rect> getLetterRectLst(Mat srcMat) throws IOException {
+		List<Rect> rectList = new LinkedList<Rect>();
+
+		Mat matGray = new Mat();
+		Imgproc.cvtColor(srcMat, matGray, Imgproc.COLOR_RGB2GRAY);
+
+
+		Mat matSobel = new Mat();
+		Imgproc.Sobel(matGray, matSobel, 0, 1, 0, 3, 1, 0, Core.BORDER_DEFAULT);
+
+		Mat matThreshold = new Mat();
+		Imgproc.threshold(matSobel, matThreshold, 0, 255, 8);
+
+
+		Mat exElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(17, 3));
+
+		Imgproc.morphologyEx(matThreshold, matThreshold, 3, exElement);
+
+
+		// MatVector matVector = new MatVector();
+		List<MatOfPoint> matVector = new ArrayList<>();
+		Mat heirarchy = new Mat();
+		Imgproc.findContours(matThreshold, matVector, heirarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
+		// findContours(matThreshold, matVector, RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+
+		List<MatOfPoint> matVectorCopy = new ArrayList<>();
+		int len = (int) matVector.size();
+		for (int i = 0; i < len; i++) {
+
+			MatOfPoint2f mMOP2f1 = new MatOfPoint2f();
+			MatOfPoint2f mMOP2f2 = new MatOfPoint2f();
+
+			matVector.get(i).convertTo(mMOP2f1, CvType.CV_32FC2);
+			Imgproc.approxPolyDP(mMOP2f1, mMOP2f2, 2, true);
+			mMOP2f2.convertTo(matVector.get(i), CvType.CV_32S);
+
+			Rect appRect = Imgproc.boundingRect(matVector.get(i));
+			//if (isWordRect(appRect)) {
+			rectList.add(appRect);
+			//}
+		}
+
+		return rectList;
+	}
+
 	private void detectDocs() throws IOException {
 
 		for (int i = 0; i < file.size(); i++) {
@@ -51,8 +97,8 @@ public class Detector {
 //			for (int j = 0; j < r.size(); j++)
 //				Imgproc.rectangle(img, r.get(i).br(), r.get(j).tl(), new Scalar(0, 255, 0), 3, 8, 0);
 			Mat img2 = findWords(img);
-			Imgcodecs.imwrite("abc1.png", img2);
-			// Imgcodecs.imwrite("inpedfut.jpg", newImg);
+//			// Imgcodecs.imwrite("abc1.png", img2);
+			Imgcodecs.imwrite("inpedfut.jpg", img2);
 
 		}
 
@@ -70,21 +116,21 @@ public class Detector {
 		Mat grad = new Mat();
 		Imgproc.morphologyEx(rgb, grad, Imgproc.MORPH_GRADIENT, kernel);
 
-		Mat bw = new Mat();
-		Imgproc.threshold(grad, bw, 0, 255, Imgproc.THRESH_BINARY);
+		// Mat bw = new Mat();
+		// Imgproc.threshold(grad, bw, 0, 255, Imgproc.THRESH_BINARY);
 
 		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(9, 1));
 
 		Mat connected = new Mat();
-		Imgproc.morphologyEx(bw, connected, Imgproc.MORPH_CLOSE, kernel);
+		Imgproc.morphologyEx(grad, connected, Imgproc.MORPH_CLOSE, kernel);
 		Imgproc.cvtColor(connected, connected, Imgproc.COLOR_RGB2GRAY);
 		
 		ArrayList<MatOfPoint> contours = new ArrayList<>();
 		Mat heirarchy = new Mat();
 
-		Imgproc.findContours(connected, contours, heirarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
+		Imgproc.findContours(connected, contours, heirarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_NONE);
 
-		Mat mask = Mat.zeros(bw.size(), CvType.CV_8U);
+		Mat mask = Mat.zeros(grad.size(), CvType.CV_8U);
 
 		for (int i = 0; i < contours.size(); i++) {
 
@@ -99,15 +145,10 @@ public class Detector {
 				mask.put(j, z, 0);
 			}
 			Imgproc.drawContours(mask, contours, i, new Scalar(255, 255, 255), -1);
+			Imgproc.rectangle(rgb, new Point(x, y), new Point(x + w - 1, y + h - 1), new Scalar(0, 255, 0));
 
-			// float r = (Core.countNonZero(mask[y:y+h, x:x+w])) / (rect.width *
-			// rect.height);
-			
-			if (w > 8 && h> 8)
-				Imgproc.rectangle(rgb, new Point(x, y), new Point(x + w - 1, y + h - 1), new Scalar(0, 255, 0));
-				//Imgproc.rectangle(rgb, (x, y), (x+w-1, y+h-1), (0, 255, 0), 2)
 		}
-		Imgcodecs.imwrite("s.png", small);
+		// Imgcodecs.imwrite("s.png", connected);
 		return rgb;
 	}
 
@@ -146,30 +187,10 @@ public class Detector {
 		return boundRect;
 	}
 
-	private Mat filterImg(Mat img) {
-		Mat destination = new Mat(img.rows(), img.cols(), img.type());
-		Mat kernel = new Mat(3, 3, CvType.CV_32F) {
-			{
-				put(0, 0, -1);
-				put(0, 1, 0);
-				put(0, 2, 1);
-
-				put(1, 0 - 2);
-				put(1, 1, 0);
-				put(1, 2, 2);
-
-				put(2, 0, -1);
-				put(2, 1, 0);
-				put(2, 2, 1);
-			}
-		};
-		Imgproc.filter2D(img, destination, -1, kernel);
-		return destination;
-	}
 
 	public static void main(String[] args) throws IOException {
 		ArrayList<File> list = new ArrayList<>();
-		list.add(new File("./datasets/8.jpg"));
+		list.add(new File("./datasets/text2.png"));
 		Detector d = new Detector(list);
 	}
 
